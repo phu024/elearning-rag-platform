@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.database import init_db
-from app.api import process, chat
+from app.api import process, chat, files
 import logging
 import sys
 
@@ -106,6 +106,7 @@ async def root():
 # Include routers
 app.include_router(process.router)
 app.include_router(chat.router)
+app.include_router(files.router)
 
 
 if __name__ == "__main__":

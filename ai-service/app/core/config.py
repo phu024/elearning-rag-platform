@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 512
     CHUNK_OVERLAP: int = 50
     
+    # Whisper (audio/video transcription)
+    WHISPER_MODEL: str = "base"  # tiny, base, small, medium, large
+    
     # CORS
     BACKEND_CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:8000"]
     
