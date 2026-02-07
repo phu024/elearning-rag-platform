@@ -4,6 +4,7 @@ import os
 import tempfile
 from typing import Optional
 from pathlib import Path
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
@@ -28,6 +29,9 @@ import aiohttp
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ai", tags=["files"])
+
+# Allowed callback URL domains for SSRF protection
+ALLOWED_CALLBACK_DOMAINS = ["localhost", "127.0.0.1", "backend"]
 
 
 # Request/Response models
@@ -92,13 +96,21 @@ async def update_file_status(callback_url: str, file_id: int, status: str, error
         error: Optional error message
     """
     try:
+        # Validate callback URL to prevent SSRF
+        parsed_url = urlparse(callback_url)
+        hostname = parsed_url.hostname
+        
+        if not hostname or hostname not in ALLOWED_CALLBACK_DOMAINS:
+            logger.warning(f"Rejected callback to untrusted domain: {hostname}")
+            return
+        
         async with aiohttp.ClientSession() as session:
             payload = {
                 "file_id": file_id,
                 "status": status,
                 "error": error
             }
-            async with session.post(callback_url, json=payload) as response:
+            async with session.post(callback_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as response:
                 if response.status == 200:
                     logger.info(f"Successfully updated file status for file_id={file_id}")
                 else:
