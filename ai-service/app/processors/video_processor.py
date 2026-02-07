@@ -3,24 +3,12 @@ import logging
 from typing import List, Dict, Any
 from pathlib import Path
 import ffmpeg
-import whisper
 import os
 import tempfile
 from app.core.config import settings
+from app.core.whisper import get_whisper_model
 
 logger = logging.getLogger(__name__)
-
-# Global Whisper model instance
-_whisper_model = None
-
-
-def get_whisper_model(model_name: str = "base"):
-    """Get or load Whisper model"""
-    global _whisper_model
-    if _whisper_model is None:
-        logger.info(f"Loading Whisper model: {model_name}")
-        _whisper_model = whisper.load_model(model_name)
-    return _whisper_model
 
 
 async def extract_audio_from_video(video_path: str, output_audio_path: str = None) -> str:
