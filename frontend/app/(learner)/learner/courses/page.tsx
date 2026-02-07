@@ -25,7 +25,6 @@ export default function LearnerCoursesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const { toast } = useToast()
   const router = useRouter()
-  // const currentUser = getCurrentUser()
 
   useEffect(() => {
     loadCourses()

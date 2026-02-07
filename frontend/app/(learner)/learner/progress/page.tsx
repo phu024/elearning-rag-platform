@@ -25,7 +25,6 @@ export default function LearnerProgressPage() {
   const [enrollments, setEnrollments] = useState<EnrollmentWithProgress[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  // const currentUser = getCurrentUser()
   const router = useRouter()
 
   useEffect(() => {

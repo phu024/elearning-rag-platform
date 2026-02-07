@@ -17,7 +17,6 @@ import ReactMarkdown from 'react-markdown'
 
 export default function LearnerLessonViewerPage() {
   const params = useParams()
-  // const router = useRouter()
   const lessonId = parseInt(params.lessonId as string)
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [files, setFiles] = useState<FileType[]>([])
@@ -25,7 +24,6 @@ export default function LearnerLessonViewerPage() {
   const [isCompleted, setIsCompleted] = useState(false)
   const [markingComplete, setMarkingComplete] = useState(false)
   const { toast } = useToast()
-  // const currentUser = getCurrentUser()
 
   useEffect(() => {
     loadLesson()
