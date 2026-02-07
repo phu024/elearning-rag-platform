@@ -43,6 +43,25 @@ services:
       timeout: 20s
       retries: 3
 
+  # MinIO Setup - Create bucket automatically
+  minio-setup:
+    image: minio/mc:latest
+    container_name: elearning-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin123;
+      /usr/bin/mc mb myminio/elearning-files --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/elearning-files;
+      echo 'MinIO bucket created successfully';
+      exit 0;
+      "
+
   # Redis for caching
   redis:
     image: redis:7-alpine
@@ -75,6 +94,26 @@ services:
       timeout: 10s
       retries: 3
 
+  # Ollama Setup - Pull model automatically
+  ollama-setup:
+    image: ollama/ollama:latest
+    container_name: elearning-ollama-setup
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - elearning-network
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      echo 'Pulling llama3 model... This may take several minutes.';
+      ollama pull llama3 --server http://ollama:11434;
+      echo 'Ollama model pulled successfully';
+      exit 0;
+      "
+
   # Backend (Node.js + Express)
   backend:
     build:
@@ -92,6 +131,7 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin123
       MINIO_USE_SSL: "false"
+      MINIO_BUCKET: elearning-files
       REDIS_HOST: redis
       REDIS_PORT: 6379
       AI_SERVICE_URL: http://ai-service:8000
@@ -104,11 +144,16 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      minio-setup:
+        condition: service_completed_successfully
     networks:
       - elearning-network
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # AI Service (Python + FastAPI)
   ai-service:
@@ -123,6 +168,7 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin123
       MINIO_USE_SSL: "false"
+      MINIO_BUCKET: elearning-files
       OLLAMA_HOST: http://ollama:11434
       OLLAMA_MODEL: llama3
     ports:
@@ -134,11 +180,18 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      ollama-setup:
+        condition: service_completed_successfully
     networks:
       - elearning-network
     volumes:
-      - ./ai-service:/app
       - ai_cache:/root/.cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # Frontend (Next.js)
   frontend:
@@ -152,13 +205,16 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - elearning-network
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 networks:
   elearning-network:
