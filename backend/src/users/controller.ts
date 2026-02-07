@@ -114,7 +114,11 @@ export const updateUser = async (
       }
     }
 
-    const updateData: any = {};
+    const updateData: {
+      fullName?: string;
+      email?: string;
+      passwordHash?: string;
+    } = {};
     if (fullName) updateData.fullName = fullName;
     if (email) updateData.email = email;
     if (password) {

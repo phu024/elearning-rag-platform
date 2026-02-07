@@ -176,7 +176,13 @@ export const updateCourse = async (
       }
     }
 
-    const updateData: any = {};
+    const updateData: {
+      title?: string;
+      description?: string;
+      thumbnailUrl?: string | null;
+      instructorId?: number;
+      isPublished?: boolean;
+    } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (thumbnailUrl !== undefined) updateData.thumbnailUrl = thumbnailUrl;

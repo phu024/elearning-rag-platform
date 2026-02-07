@@ -151,8 +151,8 @@ export const createLesson = async (
       throw new AppError('Course ID and title are required', 400);
     }
 
-    if (order === undefined || order === null) {
-      throw new AppError('Lesson order is required', 400);
+    if (typeof order !== 'number') {
+      throw new AppError('Lesson order must be a number', 400);
     }
 
     // Check if course exists
@@ -240,7 +240,12 @@ export const updateLesson = async (
       }
     }
 
-    const updateData: any = {};
+    const updateData: {
+      title?: string;
+      description?: string | null;
+      order?: number;
+      contentText?: string | null;
+    } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (order !== undefined) updateData.order = order;
