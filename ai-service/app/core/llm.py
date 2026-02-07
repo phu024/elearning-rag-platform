@@ -1,5 +1,5 @@
 import aiohttp
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from app.core.config import settings
 import logging
 import json
@@ -64,7 +64,7 @@ async def query_ollama_with_context(
     context_chunks: List[Dict],
     model: str = None,
     temperature: float = 0.7
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Query Ollama with retrieved context from vector search
     

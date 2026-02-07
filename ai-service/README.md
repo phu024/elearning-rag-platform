@@ -41,7 +41,7 @@ cp .env.example .env
 
 3. Run the service:
 ```bash
-uvicorn app.main:app --reload --port 8001
+uvicorn app.main:app --reload --port 8000
 ```
 
 ## API Endpoints
@@ -64,7 +64,7 @@ uvicorn app.main:app --reload --port 8001
 ```python
 import requests
 
-response = requests.post("http://localhost:8001/api/process/text", json={
+response = requests.post("http://localhost:8000/api/process/text", json={
     "file_id": 1,
     "text_content": "Your course content here...",
     "user_id": 1,
@@ -74,7 +74,7 @@ response = requests.post("http://localhost:8001/api/process/text", json={
 
 ### Query with RAG
 ```python
-response = requests.post("http://localhost:8001/api/chat/query", json={
+response = requests.post("http://localhost:8000/api/chat/query", json={
     "query": "What is machine learning?",
     "course_id": 1,
     "limit": 5

@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     
     # AI Service
     AI_SERVICE_HOST: str = "0.0.0.0"
-    AI_SERVICE_PORT: int = 8001
+    AI_SERVICE_PORT: int = 8000
     
     # Embeddings
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
