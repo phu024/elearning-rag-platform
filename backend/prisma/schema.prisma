@@ -1,0 +1,146 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         Role     @default(LEARNER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  enrollments  Enrollment[]
+  progress     Progress[]
+  chatHistory  ChatHistory[]
+}
+
+model Course {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  thumbnailUrl String?
+  instructorId Int
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  lessons      Lesson[]
+  enrollments  Enrollment[]
+}
+
+model Lesson {
+  id          Int      @id @default(autoincrement())
+  courseId    Int
+  title       String
+  description String?
+  order       Int
+  contentText String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  files       File[]
+  progress    Progress[]
+  chatHistory ChatHistory[]
+  
+  @@index([courseId])
+}
+
+model File {
+  id               Int              @id @default(autoincrement())
+  lessonId         Int
+  filename         String
+  fileType         FileType
+  minioUrl         String
+  minioKey         String
+  fileSize         BigInt
+  processingStatus ProcessingStatus @default(PENDING)
+  errorMessage     String?
+  createdAt        DateTime         @default(now())
+  
+  lesson           Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@index([lessonId])
+  @@index([processingStatus])
+}
+
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  courseId   Int
+  enrolledAt DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model Progress {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  lessonId    Int
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  lastViewed  DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+model ChatHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  lessonId  Int?
+  courseId  Int?
+  scope     String
+  query     String
+  response  String
+  sources   Json?
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([lessonId])
+}
+
+enum Role {
+  ADMIN
+  LEARNER
+}
+
+enum FileType {
+  PDF
+  DOCX
+  PPTX
+  XLSX
+  TXT
+  VIDEO
+  AUDIO
+  IMAGE
+  OTHER
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
