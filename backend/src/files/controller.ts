@@ -6,7 +6,7 @@ import * as minioUtils from '../utils/minio';
 import axios from 'axios';
 import { FileType, ProcessingStatus } from '@prisma/client';
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8001';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
 const getFileTypeFromExtension = (filename: string): FileType => {
   const ext = filename.toLowerCase().split('.').pop();
