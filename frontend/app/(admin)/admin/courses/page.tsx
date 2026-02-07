@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { useToast } from '@/lib/use-toast'
 import { api, Course } from '@/lib/api'
 import { useRouter } from 'next/navigation'
+import { getCurrentUser } from '@/lib/auth'
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -18,6 +19,7 @@ export default function AdminCoursesPage() {
   const [formData, setFormData] = useState({ title: '', description: '' })
   const { toast } = useToast()
   const router = useRouter()
+  const currentUser = getCurrentUser()
 
   useEffect(() => {
     loadCourses()
@@ -52,7 +54,7 @@ export default function AdminCoursesPage() {
       await api.createCourse({
         title: formData.title,
         description: formData.description,
-        instructor_id: 1 // This should come from current user
+        instructor_id: currentUser?.id || 1
       })
       toast({
         title: 'Success',
