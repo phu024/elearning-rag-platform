@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
+import { generalRateLimiter } from '../middleware/rateLimiter';
 import {
   getMyProgress,
   markLessonComplete,
@@ -7,6 +8,8 @@ import {
 } from './controller';
 
 const router = Router();
+
+router.use(generalRateLimiter);
 
 router.get('/me', authenticate, getMyProgress);
 

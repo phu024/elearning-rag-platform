@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { authenticate, authorize } from '../middleware/auth';
+import { generalRateLimiter } from '../middleware/rateLimiter';
 import {
   uploadFile,
   getFileById,
@@ -9,6 +10,8 @@ import {
 } from './controller';
 
 const router = Router();
+
+router.use(generalRateLimiter);
 
 const storage = multer.memoryStorage();
 const upload = multer({
