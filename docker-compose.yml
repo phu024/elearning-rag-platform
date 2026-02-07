@@ -85,6 +85,7 @@ services:
       NODE_ENV: production
       PORT: 4000
       DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/elearning
+      # WARNING: Change JWT_SECRET in production! Generate with: openssl rand -base64 32
       JWT_SECRET: your-secret-key-change-in-production
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000

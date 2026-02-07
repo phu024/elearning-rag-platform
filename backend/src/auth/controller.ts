@@ -5,8 +5,11 @@ import prisma from '../utils/prisma';
 import { AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-const JWT_SECRET: string = process.env.JWT_SECRET || 'your-secret-key';
-const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_SECRET: string = process.env.JWT_SECRET || (() => {
+  console.warn('WARNING: JWT_SECRET not set in environment variables. Using insecure default.');
+  return 'your-secret-key-change-in-production';
+})();
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d') as '7d';
 
 export const createDefaultAdmin = async (): Promise<void> => {
   try {
@@ -77,7 +80,7 @@ export const register = async (
         role: user.role,
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.status(201).json({
@@ -125,7 +128,7 @@ export const login = async (
         role: user.role,
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.json({
