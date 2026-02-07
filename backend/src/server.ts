@@ -2,9 +2,9 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './auth/routes';
-// import userRoutes from './users/routes';
-// import courseRoutes from './courses/routes';
-// import lessonRoutes from './lessons/routes';
+import userRoutes from './users/routes';
+import courseRoutes from './courses/routes';
+import lessonRoutes from './lessons/routes';
 // import fileRoutes from './files/routes';
 // import chatRoutes from './chat/routes';
 // import progressRoutes from './progress/routes';
@@ -31,9 +31,9 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/courses', courseRoutes);
-// app.use('/api/lessons', lessonRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/lessons', lessonRoutes);
 // app.use('/api/files', fileRoutes);
 // app.use('/api/chat', chatRoutes);
 // app.use('/api/progress', progressRoutes);
