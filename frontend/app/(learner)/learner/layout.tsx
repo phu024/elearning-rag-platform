@@ -5,12 +5,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentUser, removeToken } from '@/lib/auth'
-import { BookOpen, TrendingUp, User, LogOut } from 'lucide-react'
+import { BookOpen, TrendingUp, LogOut } from 'lucide-react'
 
 const navItems = [
-  { href: '/learner', label: 'Courses', icon: BookOpen },
+  { href: '/learner/courses', label: 'Courses', icon: BookOpen },
   { href: '/learner/progress', label: 'My Progress', icon: TrendingUp },
-  { href: '/learner/profile', label: 'Profile', icon: User },
 ]
 
 export default function LearnerLayout({
@@ -34,7 +33,7 @@ export default function LearnerLayout({
         <header className="bg-white border-b sticky top-0 z-40">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
-              <Link href="/learner" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <Link href="/learner/courses" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 E-Learning
               </Link>
 
