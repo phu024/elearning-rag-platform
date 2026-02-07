@@ -10,7 +10,6 @@ import { getCurrentUser, removeToken } from '@/lib/auth'
 import { 
   LayoutDashboard, 
   BookOpen, 
-  FileText, 
   Users, 
   LogOut,
   Menu,
@@ -18,9 +17,8 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/courses', label: 'Courses', icon: BookOpen },
-  { href: '/admin/lessons', label: 'Lessons', icon: FileText },
   { href: '/admin/users', label: 'Users', icon: Users },
 ]
 

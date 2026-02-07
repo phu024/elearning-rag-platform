@@ -21,48 +21,60 @@ def init_db():
     """Initialize database with pgvector extension and embeddings table"""
     try:
         with engine.connect() as conn:
-            # Enable pgvector extension
+            # The pgvector extension and embeddings table should already be created
+            # by init-db.sql, but we'll check and create if needed
+            
+            # Enable pgvector extension (idempotent)
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
             conn.commit()
             
-            # Create embeddings table
-            conn.execute(text(f"""
-                CREATE TABLE IF NOT EXISTS embeddings (
-                    id SERIAL PRIMARY KEY,
-                    file_id INTEGER NOT NULL,
-                    user_id INTEGER,
-                    course_id INTEGER,
-                    module_id INTEGER,
-                    chunk_text TEXT NOT NULL,
-                    embedding vector({settings.EMBEDDING_DIMENSION}) NOT NULL,
-                    metadata JSONB,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
+            # Check if embeddings table exists
+            result = conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = 'embeddings'
+                );
             """))
-            conn.commit()
+            table_exists = result.scalar()
             
-            # Create index for vector similarity search
-            conn.execute(text("""
-                CREATE INDEX IF NOT EXISTS embeddings_vector_idx 
-                ON embeddings USING ivfflat (embedding vector_cosine_ops)
-                WITH (lists = 100)
-            """))
-            conn.commit()
-            
-            # Create indexes for filtering
-            conn.execute(text("""
-                CREATE INDEX IF NOT EXISTS embeddings_file_id_idx ON embeddings(file_id)
-            """))
-            conn.execute(text("""
-                CREATE INDEX IF NOT EXISTS embeddings_user_id_idx ON embeddings(user_id)
-            """))
-            conn.execute(text("""
-                CREATE INDEX IF NOT EXISTS embeddings_course_id_idx ON embeddings(course_id)
-            """))
-            conn.execute(text("""
-                CREATE INDEX IF NOT EXISTS embeddings_module_id_idx ON embeddings(module_id)
-            """))
-            conn.commit()
+            if not table_exists:
+                # Create embeddings table matching init-db.sql schema
+                conn.execute(text(f"""
+                    CREATE TABLE embeddings (
+                        id SERIAL PRIMARY KEY,
+                        vector vector({settings.EMBEDDING_DIMENSION}),
+                        content TEXT NOT NULL,
+                        course_id INTEGER,
+                        lesson_id INTEGER,
+                        file_id INTEGER,
+                        file_type VARCHAR(50),
+                        page_number INTEGER,
+                        timestamp_seconds FLOAT,
+                        metadata JSONB,
+                        created_at TIMESTAMP DEFAULT NOW()
+                    )
+                """))
+                conn.commit()
+                
+                # Create indexes
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS embeddings_vector_idx 
+                    ON embeddings USING ivfflat (vector vector_cosine_ops)
+                    WITH (lists = 100)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS embeddings_course_id_idx ON embeddings(course_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS embeddings_lesson_id_idx ON embeddings(lesson_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS embeddings_file_id_idx ON embeddings(file_id)
+                """))
+                conn.commit()
+                logger.info("Embeddings table created successfully")
+            else:
+                logger.info("Embeddings table already exists")
             
             logger.info("Database initialized successfully")
     except Exception as e:

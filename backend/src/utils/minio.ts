@@ -15,7 +15,7 @@ const minioClient = new Client({
   secretKey: minioSecretKey,
 });
 
-const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'elearning-files';
+const BUCKET_NAME = process.env.MINIO_BUCKET || process.env.MINIO_BUCKET_NAME || 'elearning-files';
 
 export const initializeBucket = async (): Promise<void> => {
   try {
