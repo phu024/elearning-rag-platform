@@ -1,17 +1,18 @@
 import { Client } from 'minio';
 
+const minioAccessKey = process.env.MINIO_ACCESS_KEY || 'minioadmin';
+const minioSecretKey = process.env.MINIO_SECRET_KEY || 'minioadmin';
+
+if (!process.env.MINIO_ACCESS_KEY || !process.env.MINIO_SECRET_KEY) {
+  console.warn('WARNING: MinIO credentials not set in environment. Using insecure defaults.');
+}
+
 const minioClient = new Client({
   endPoint: process.env.MINIO_ENDPOINT || 'localhost',
   port: parseInt(process.env.MINIO_PORT || '9000'),
   useSSL: process.env.MINIO_USE_SSL === 'true',
-  accessKey: process.env.MINIO_ACCESS_KEY || (() => {
-    console.warn('WARNING: MINIO_ACCESS_KEY not set. Using insecure default.');
-    return 'minioadmin';
-  })(),
-  secretKey: process.env.MINIO_SECRET_KEY || (() => {
-    console.warn('WARNING: MINIO_SECRET_KEY not set. Using insecure default.');
-    return 'minioadmin';
-  })(),
+  accessKey: minioAccessKey,
+  secretKey: minioSecretKey,
 });
 
 const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'elearning-files';
